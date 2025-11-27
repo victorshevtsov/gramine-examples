@@ -1,0 +1,35 @@
+libos.entrypoint = "{{ node_path }}"
+
+loader.log_level = "{{ log_level }}"
+
+loader.env.LD_LIBRARY_PATH = "/lib:{{ arch_libdir }}:/usr/{{ arch_libdir }}"
+
+loader.insecure__use_cmdline_argv = true
+# loader.insecure__use_host_env = true
+
+fs.mounts = [
+  { uri = "file:{{ gramine.runtimedir() }}", path = "/lib" },
+  { uri = "file:{{ arch_libdir }}", path = "{{ arch_libdir }}" },
+  { uri = "file:/usr/{{ arch_libdir }}", path = "/usr/{{ arch_libdir }}" },
+  { uri = "file:{{ node_path }}", path = "{{ node_path }}" },
+]
+
+# Node.js expects around 1.7GB of heap on startup, see https://github.com/nodejs/node/issues/13018
+sgx.enclave_size = "2G"
+
+sgx.max_threads = 32
+
+# sgx.max_threads = {{ '1' if env.get('EDMM', '0') == '1' else '32' }}
+# sgx.edmm_enable = {{ 'true' if env.get('EDMM', '0') == '1' else 'false' }}
+
+# `use_exinfo = true` is needed because Node.js uses memory mappings with `MAP_NORESERVE`, which
+# will defer page accepts to page-fault events when EDMM is enabled
+# sgx.use_exinfo = {{ 'true' if env.get('EDMM', '0') == '1' else 'false' }}
+
+sgx.trusted_files = [
+  "file:{{ node_path }}",
+  "file:{{ gramine.runtimedir() }}/",
+  "file:{{ arch_libdir }}/",
+  "file:/usr/{{ arch_libdir }}/",
+  "file:hello-world.js",
+]
