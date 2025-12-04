@@ -8,6 +8,7 @@ docker build -t gramine-node ./
 docker run -it --rm \
   --device /dev/sgx_enclave \
   --device /dev/sgx_provision \
+  --volume /var/run/aesmd/aesm.socket:/var/run/aesmd/aesm.socket \
   --volume $(pwd)/app:/app \
   --workdir /app \
   gramine-node \

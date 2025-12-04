@@ -20,7 +20,7 @@ ifeq ($(SGX),1)
 all: node.manifest.sgx node.sig
 endif
 
-node.manifest: node.manifest.template hello-world.js
+node.manifest: node.manifest.template ./dist/index.cjs
 	gramine-manifest \
 		-Dlog_level=$(GRAMINE_LOG_LEVEL) \
 		-Darch_libdir=$(ARCH_LIBDIR) \
@@ -38,7 +38,7 @@ sgx_sign: node.manifest
 
 .PHONY: check
 check: all
-	$(GRAMINE) ./node hello-world.js > OUTPUT
+	$(GRAMINE) ./node ./dist/index.cjs > OUTPUT
 	@grep -q "Hello World" OUTPUT && echo "[ Success 1/1 ]"
 	@rm OUTPUT
 
